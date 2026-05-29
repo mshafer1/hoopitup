@@ -13,43 +13,23 @@
       <div v-else class="container">
         <!-- Vote Buttons -->
         <div class="vote-section">
-          <button
-            @click="submitVote('yes')"
-            class="btn btn-yes"
-            :class="{ active: playerVote === 'yes' }"
-          >
+          <button @click="submitVote('yes')" class="btn btn-yes" :class="{ active: playerVote === 'yes' }">
             👍 Yes
           </button>
 
-          <button
-            @click="submitVote('yes_if_3')"
-            class="btn btn-yes"
-            :class="{ active: playerVote === 'yes_if_3' }"
-          >
+          <button @click="submitVote('yes_if_3')" class="btn btn-yes" :class="{ active: playerVote === 'yes_if_3' }">
             👍 Yes (if enough for 3's)
           </button>
 
-          <button
-            @click="submitVote('yes_if_5')"
-            class="btn btn-yes"
-            :class="{ active: playerVote === 'yes_if_5' }"
-          >
+          <button @click="submitVote('yes_if_5')" class="btn btn-yes" :class="{ active: playerVote === 'yes_if_5' }">
             👍 Yes (if enough for 5's)
           </button>
 
-          <button
-            @click="submitVote('maybe')"
-            class="btn btn-maybe"
-            :class="{ active: playerVote === 'maybe' }"
-          >
+          <button @click="submitVote('maybe')" class="btn btn-maybe" :class="{ active: playerVote === 'maybe' }">
             ❓ Maybe
           </button>
 
-          <button
-            @click="submitVote('no')"
-            class="btn btn-no"
-            :class="{ active: playerVote === 'no' }"
-          >
+          <button @click="submitVote('no')" class="btn btn-no" :class="{ active: playerVote === 'no' }">
             👎 No
           </button>
         </div>
@@ -80,20 +60,8 @@
 
         <!-- Game Status -->
         <div class="status-info">
-          <p class="total">Total Responses: <strong>{{ votes.total }}</strong></p>
-          <p class="thresholds">
-            <strong>3v3 ready:</strong>
-            <span :class="{ ready: votes.enough_for_3 }">{{ votes.enough_for_3 ? 'Yes' : 'No' }}</span>
-            &nbsp;•&nbsp;
-            <strong>5v5 ready:</strong>
-            <span :class="{ ready: votes.enough_for_5 }">{{ votes.enough_for_5 ? 'Yes' : 'No' }}</span>
-          </p>
+          <p class="total">Total Responses: <strong>{{ expected }}</strong></p>
         </div>
-
-        <!-- Reset Button -->
-        <button @click="resetVotes" class="btn btn-reset">
-          Reset Votes
-        </button>
       </div>
     </main>
 
@@ -119,18 +87,19 @@ export default {
       yes_if_5: 0,
       no: 0,
       maybe: 0,
-      total: 0,
-      enough_for_3: false,
-      enough_for_5: false
     })
 
-    const gameStatus = computed(() => {
-      if (votes.value.yes + votes.value.yes_if_3 > votes.value.no) {
-        return 'ON'
-      } else if (votes.value.no > votes.value.yes + votes.value.yes_if_3) {
-        return 'OFF'
+    const expected = computed(() => {
+      var straight_count = votes.value.yes + Math.floor(.5 * votes.value.maybe)
+      var yes_if_3_count = votes.value.yes_if_3 + straight_count
+      var yes_if_5_count = votes.value.yes_if_5 + straight_count
+
+      if (yes_if_3_count >= 6) {
+        return '3v3'
+      } else if (yes_if_5_count >= 10) {
+        return '5v5'
       } else {
-        return 'UNDECIDED'
+        return `Looks like no game (${straight_count} total)`
       }
     })
 
@@ -138,14 +107,7 @@ export default {
       playerVote.value = choice
       if (socket.value) {
         socket.value.emit('vote', { vote: choice })
-        notifyUser('Vote Recorded', { body: `You voted: ${choice}` })
-      }
-    }
-
-    const resetVotes = () => {
-      if (socket.value && confirm('Reset all votes?')) {
-        socket.value.emit('reset_votes')
-        playerVote.value = null
+        notifyUser('Vote Recorded', { body: `You voted: ${choice}` }) // TODO: remove
       }
     }
 
@@ -197,7 +159,7 @@ export default {
       socket.value.on('votes_update', (data) => {
         votes.value = Object.assign({}, votes.value, data)
         if (data.total > 0) {
-          notifyUser('Vote Update', {
+          notifyUser('Vote Update', { // todo: remove
             body: `Yes: ${data.yes} (+${data.yes_if_3} if 3's, +${data.yes_if_5} if 5's) | No: ${data.no} | Maybe: ${data.maybe}`,
             tag: 'votes-update',
             requireInteraction: false
@@ -207,9 +169,9 @@ export default {
 
       socket.value.on('scheduled_message', (data) => {
         console.log('Scheduled message received:', data)
-        notifyUser('Game Announcement', {
+        notifyUser('Game Today?', {
           body: data.message,
-          tag: 'scheduled-message',
+          tag: 'game-today?',
           requireInteraction: true
         })
       })
@@ -236,6 +198,12 @@ export default {
 <style scoped>
 /* Keep the original styles (trimmed for brevity) */
 /* Reuse the previous stylesheet in the repo; add a small style for ready */
-.result-card.yes-if { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-.thresholds .ready { color: #27AE60; font-weight: 700; }
+.result-card.yes-if {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+.thresholds .ready {
+  color: #27AE60;
+  font-weight: 700;
+}
 </style>
