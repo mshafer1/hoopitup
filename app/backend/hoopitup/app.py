@@ -3,10 +3,14 @@ Hoop It Up Backend - Flask with SocketIO
 """
 import datetime
 import enum
+import logging
+import pathlib
+import urllib.parse
 
 import apscheduler.schedulers.background
 
-# from flask import Flask, jsonify, request
+
+import uuid
 import flask
 import flask_cors
 import flask_socketio
@@ -14,9 +18,32 @@ import flask_socketio
 from hoopitup import config
 
 app = flask.Flask(__name__, static_folder=None)
-app.config["SECRET_KEY"] = config.config.SECRET_KEY
-flask_cors.CORS(app)
-socketio = flask_socketio.SocketIO(app, cors_allowed_origins="*")
+app.config["SECRET_KEY"] = config.SECRET_KEY
+
+MODULE_LOGGER = logging.getLogger(__name__)
+MODULE_DIR = pathlib.Path(__file__).parent
+FRONTEND_PATH = MODULE_DIR / ".." / ".." / "frontend"
+DIST_PATH = (FRONTEND_PATH / "dist").resolve()
+
+_SECONDS_IN_A_YEAR = 60 * 60 * 24 * 365
+
+logging.warning("Dist path is: %s", DIST_PATH)
+
+extra_socket_args = {}
+if config.DEBUG:
+    logging.basicConfig(level=logging.DEBUG)
+    MODULE_LOGGER.setLevel(logging.DEBUG)
+    logging.warning("enabling cross-origin-resource-loading")
+    cors = flask_cors.CORS(app)
+    extra_socket_args = {
+        "cors_allowed_origins": "*",
+        "logger": True,
+        "enginio_logger": True,
+    }
+
+socketio = flask_socketio.SocketIO(app, **extra_socket_args)
+
+
 
 # Initialize background scheduler for cron jobs
 scheduler = apscheduler.schedulers.background.BackgroundScheduler(timezone=config.SCHEDULE_TIMEZONE)
@@ -35,8 +62,9 @@ _VALID_VOTE_CHOICES = {vote.value for vote in VoteValues}
 
 # In-memory storage for voting data
 # In production, use a database
-votes = {}
+votes = {}  # session_id -> vote
 vote_counts = {vote.value: 0 for vote in VoteValues}
+sid_to_session = {}  # sid -> session_id
 participants = {}
 
 
@@ -103,8 +131,14 @@ def get_votes():
 @socketio.on("connect")
 def handle_connect(data=None):
     """Handle client connection"""
-    print(f"Client connected: {flask.request.sid if hasattr(flask.request, 'sid') else 'unknown'}")
-    flask_socketio.emit("connection_response", {"message": "Connected to server"})
+    sid = flask.request.sid
+    session_id = flask.request.cookies.get("session_id")
+    if not session_id:
+        # Should not happen if HTTP route sets cookie, but fallback
+        session_id = str(uuid.uuid4())
+    sid_to_session[sid] = session_id
+    print(f"Client connected: sid={sid}, session_id={session_id}")
+    flask_socketio.emit("connection_response", {"message": "Connected to server", "session_id": session_id})
     # Send current votes to new client
     send_current_votes()
 
@@ -118,26 +152,32 @@ def handle_disconnect():
 @socketio.on("vote")
 def handle_vote(data):
     """Handle vote submission"""
-    from flask_socketio import request
-
     vote_choice = data.get("vote")  # 'yes', 'no', 'maybe', 'yes_if_3', 'yes_if_5'
 
     if vote_choice not in _VALID_VOTE_CHOICES:
         flask_socketio.emit("error", {"message": "Invalid vote choice"})
         return
 
-    sid = request.sid
-    if sid not in votes:
-        votes[sid] = vote_choice
+    sid = flask.request.sid
+    session_id = sid_to_session.get(sid)
+    if not session_id:
+        # Fallback: try to get from cookie
+        session_id = flask.request.cookies.get("session_id")
+        if not session_id:
+            session_id = str(uuid.uuid4())
+        sid_to_session[sid] = session_id
+
+    if session_id not in votes:
+        votes[session_id] = vote_choice
         vote_counts[vote_choice] += 1
     else:
         # Update existing vote
-        old_vote = votes[sid]
+        old_vote = votes[session_id]
         if old_vote != vote_choice:
             vote_counts[old_vote] -= 1
             if vote_counts[old_vote] < 0:
                 vote_counts[old_vote] = 0  # Ensure count doesn't go negative
-            votes[sid] = vote_choice
+            votes[session_id] = vote_choice
             vote_counts[vote_choice] += 1
     # Broadcast updated vote counts to all clients
     send_current_votes()
@@ -181,6 +221,38 @@ def shutdown_scheduler(exception=None):
     if scheduler.running:
         scheduler.shutdown()
 
+# region: web-server
+
+@app.route("/", defaults={"path": "index.html"}, methods=["GET"])
+def get_index(path):
+    print("Handling root path")
+    resp = _handle_path("index.html")
+    return resp
+
+
+@app.route("/<path:path>", methods=["GET"])
+def get_dir(path):
+    parsed = urllib.parse.urlparse(path).path
+    print("Requested path is", path, "parsed to", parsed)
+    resp = _handle_path(parsed)
+    return resp
+
+def _handle_path(parsed):
+
+    session_id = flask.request.cookies.get("session_id")
+    MODULE_LOGGER.debug(f"Handling parsed: {parsed}, session_id: {session_id}")
+    resource_path = "/" + (parsed if "." in parsed else "index.html")
+    MODULE_LOGGER.debug(f"Resource path resolved to: {resource_path}")
+    resp = flask.make_response(flask.send_from_directory(DIST_PATH, resource_path.lstrip("/")))
+    if not session_id:
+        session_id = str(uuid.uuid4())
+    # set or renew cookie on each visit to keep active users from losing their session_id
+    resp.set_cookie("session_id", session_id, max_age=_SECONDS_IN_A_YEAR, httponly=True, samesite="Strict")
+    return resp
+
+
+
+# endregion
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=False)

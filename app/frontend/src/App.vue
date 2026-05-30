@@ -60,7 +60,7 @@
 
         <!-- Game Status -->
         <div class="status-info">
-          <p class="total">Total Responses: <strong>{{ expected }}</strong></p>
+          <p class="total">Game Status: <strong>{{ expected }}</strong></p>
         </div>
       </div>
     </main>
@@ -94,12 +94,18 @@ export default {
       var yes_if_3_count = votes.value.yes_if_3 + straight_count
       var yes_if_5_count = votes.value.yes_if_5 + straight_count
 
+      console.log("Calculating expected game status with counts:", {
+        straight_count,
+        yes_if_3_count,
+        yes_if_5_count
+      })
+
       if (yes_if_3_count >= 6) {
         return '3v3'
       } else if (yes_if_5_count >= 10) {
         return '5v5'
       } else {
-        return `Looks like no game (${straight_count} total)`
+        return `No game yet (${straight_count} total)`
       }
     })
 
@@ -157,6 +163,7 @@ export default {
       })
 
       socket.value.on('votes_update', (data) => {
+        console.log("Votes update received:", data)
         votes.value = Object.assign({}, votes.value, data)
         if (data.total > 0) {
           notifyUser('Vote Update', { // todo: remove
@@ -187,9 +194,8 @@ export default {
       connected,
       playerVote,
       votes,
-      gameStatus,
       submitVote,
-      resetVotes
+      expected,
     }
   }
 }
