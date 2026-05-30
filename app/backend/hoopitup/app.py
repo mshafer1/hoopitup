@@ -6,11 +6,9 @@ import enum
 import logging
 import pathlib
 import urllib.parse
+import uuid
 
 import apscheduler.schedulers.background
-
-
-import uuid
 import flask
 import flask_cors
 import flask_socketio
@@ -42,7 +40,6 @@ if config.DEBUG:
     }
 
 socketio = flask_socketio.SocketIO(app, **extra_socket_args)
-
 
 
 # Initialize background scheduler for cron jobs
@@ -122,12 +119,6 @@ def health():
     return flask.jsonify({"status": "healthy"})
 
 
-@app.route("/api/votes", methods=["GET"])
-def get_votes():
-    """Get current vote counts"""
-    return flask.jsonify(vote_counts)
-
-
 @socketio.on("connect")
 def handle_connect(data=None):
     """Handle client connection"""
@@ -138,7 +129,9 @@ def handle_connect(data=None):
         session_id = str(uuid.uuid4())
     sid_to_session[sid] = session_id
     print(f"Client connected: sid={sid}, session_id={session_id}")
-    flask_socketio.emit("connection_response", {"message": "Connected to server", "session_id": session_id})
+    flask_socketio.emit(
+        "connection_response", {"message": "Connected to server", "session_id": session_id}
+    )
     # Send current votes to new client
     send_current_votes()
 
@@ -221,7 +214,9 @@ def shutdown_scheduler(exception=None):
     if scheduler.running:
         scheduler.shutdown()
 
+
 # region: web-server
+
 
 @app.route("/", defaults={"path": "index.html"}, methods=["GET"])
 def get_index(path):
@@ -237,8 +232,21 @@ def get_dir(path):
     resp = _handle_path(parsed)
     return resp
 
-def _handle_path(parsed):
 
+@app.route("/api/current-vote", methods=["GET"])
+def get_current_vote():
+    session_id = flask.request.cookies.get("session_id")
+    if not session_id:
+        return flask.jsonify({"error": "Session ID not found"}), 400
+
+    vote = votes.get(session_id)
+    if not vote:
+        return flask.jsonify({"error": "No vote found for this session"}), 404
+
+    return flask.jsonify({"session_id": session_id, "vote": vote})
+
+
+def _handle_path(parsed):
     session_id = flask.request.cookies.get("session_id")
     MODULE_LOGGER.debug(f"Handling parsed: {parsed}, session_id: {session_id}")
     resource_path = "/" + (parsed if "." in parsed else "index.html")
@@ -247,9 +255,10 @@ def _handle_path(parsed):
     if not session_id:
         session_id = str(uuid.uuid4())
     # set or renew cookie on each visit to keep active users from losing their session_id
-    resp.set_cookie("session_id", session_id, max_age=_SECONDS_IN_A_YEAR, httponly=True, samesite="Strict")
+    resp.set_cookie(
+        "session_id", session_id, max_age=_SECONDS_IN_A_YEAR, httponly=True, samesite="Strict"
+    )
     return resp
-
 
 
 # endregion

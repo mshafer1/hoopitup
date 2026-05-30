@@ -79,6 +79,7 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import io from 'socket.io-client'
+import axios from 'axios'
 
 export default {
   name: 'App',
@@ -146,6 +147,20 @@ export default {
 
     onMounted(() => {
       requestNotificationPermission()
+
+      // Restore this user's previous vote (if any)
+      const fetchCurrentVote = async () => {
+        try {
+          const resp = await axios.get('/api/current-vote')
+          if (resp && resp.data && resp.data.vote) {
+            playerVote.value = resp.data.vote
+            console.log('Restored previous vote:', resp.data.vote)
+          }
+        } catch (err) {
+          console.warn('Could not fetch current vote:', err)
+        }
+      }
+      fetchCurrentVote()
 
       const protocol = window.location.protocol === 'https:' ? 'https' : 'http'
       const url = `${protocol}://${window.location.hostname}:${window.location.port || (protocol === 'https' ? 443 : 80)}`
