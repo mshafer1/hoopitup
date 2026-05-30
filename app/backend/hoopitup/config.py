@@ -2,6 +2,7 @@
 Configuration module for Hoop It Up Backend
 Uses python-decouple to load environment variables
 """
+
 from decouple import config
 
 SECRET_KEY = config(

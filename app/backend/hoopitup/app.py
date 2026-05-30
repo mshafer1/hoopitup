@@ -1,6 +1,7 @@
 """
 Hoop It Up Backend - Flask with SocketIO
 """
+
 import atexit
 import datetime
 import enum
