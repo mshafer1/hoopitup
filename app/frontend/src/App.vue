@@ -17,7 +17,9 @@
         <!-- Vote Buttons -->
         <div class="vote-section mb-3">
           <div class="row g-2">
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
             <div
               class="col-6 col-sm-6 col-md-2"
               v-for="btn in voteButtons"
@@ -44,14 +46,18 @@
                 {{ btn.label }}
               </button>
             </div>
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
           </div>
         </div>
 
         <!-- Vote Results -->
         <div class="results mb-3">
           <div class="row g-2 text-center">
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
             <div class="col-6 col-sm-4 col-md-2" title="Yes">
               <div class="p-2 rounded bg-light">
                 <div class="h4 mb-0">{{ votes.yes }}</div>
@@ -82,16 +88,19 @@
                 <small class="text-muted">No</small>
               </div>
             </div>
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
           </div>
         </div>
 
         <!-- Game Status -->
         <div class="status mb-3">
           <div class="row g-2 text-center">
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
-            <div class="col-10 col-sm-10" title="Results">  
-              
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
+            <div class="col-10 col-sm-10" title="Results">
               <div class="status-info text-center">
                 <div class="p-2 rounded bg-transparent border border-secondary">
                   <div class="h4 mb-0">
@@ -101,14 +110,16 @@
                 </div>
               </div>
             </div>
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
           </div>
         </div>
       </div>
     </main>
 
     <footer class="footer text-center mt-4">
-      <p>Check back later to see if there's a game today!</p>
+      <p>{{ summary }}</p>
     </footer>
   </div>
 </template>
@@ -154,6 +165,14 @@ export default {
         return "2v2";
       } else {
         return `No game yet (${straight_count} total)`;
+      }
+    });
+
+    const summary = computed(() => {
+      if (expected.value.startsWith("No game yet")) {
+        return "Check back later to see if there's a game today!";
+      } else {
+        return "";
       }
     });
 
@@ -268,6 +287,7 @@ export default {
       votes,
       submitVote,
       expected,
+      summary,
       voteButtons,
     };
   },
