@@ -225,14 +225,6 @@ def get_index(path):
     return resp
 
 
-@app.route("/<path:path>", methods=["GET"])
-def get_dir(path):
-    parsed = urllib.parse.urlparse(path).path
-    print("Requested path is", path, "parsed to", parsed)
-    resp = _handle_path(parsed)
-    return resp
-
-
 @app.route("/api/current-vote", methods=["GET"])
 def get_current_vote():
     session_id = flask.request.cookies.get("session_id")
@@ -243,7 +235,15 @@ def get_current_vote():
     if not vote:
         return flask.jsonify({"error": "No vote found for this session"}), 404
 
-    return flask.jsonify({"session_id": session_id, "vote": vote})
+    return flask.jsonify({"vote": vote})
+
+
+@app.route("/<path:path>", methods=["GET"])
+def get_dir(path):
+    parsed = urllib.parse.urlparse(path).path
+    print("Requested path is", path, "parsed to", parsed)
+    resp = _handle_path(parsed)
+    return resp
 
 
 def _handle_path(parsed):
