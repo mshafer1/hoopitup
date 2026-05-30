@@ -17,19 +17,41 @@
         <!-- Vote Buttons -->
         <div class="vote-section mb-3">
           <div class="row g-2">
-            <div class="col-6 col-sm-6 col-md-2" v-for="btn in voteButtons" :key="btn.key">
-              <button @click="submitVote(btn.key)"
-                      class="btn w-100"
-                      :class="{'btn-outline-success': btn.style==='success' && playerVote!==btn.key, 'btn-success': btn.style==='success' && playerVote===btn.key, 'btn-outline-warning': btn.style==='warning' && playerVote!==btn.key, 'btn-warning': btn.style==='warning' && playerVote===btn.key, 'btn-outline-danger': btn.style==='danger' && playerVote!==btn.key, 'btn-danger': btn.style==='danger' && playerVote===btn.key}">
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+            <div
+              class="col-6 col-sm-6 col-md-2"
+              v-for="btn in voteButtons"
+              :key="btn.key"
+            >
+              <button
+                @click="submitVote(btn.key)"
+                class="btn w-100"
+                :class="{
+                  'btn-outline-success':
+                    btn.style === 'success' && playerVote !== btn.key,
+                  'btn-success':
+                    btn.style === 'success' && playerVote === btn.key,
+                  'btn-outline-warning':
+                    btn.style === 'warning' && playerVote !== btn.key,
+                  'btn-warning':
+                    btn.style === 'warning' && playerVote === btn.key,
+                  'btn-outline-danger':
+                    btn.style === 'danger' && playerVote !== btn.key,
+                  'btn-danger':
+                    btn.style === 'danger' && playerVote === btn.key,
+                }"
+              >
                 {{ btn.label }}
               </button>
             </div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
           </div>
         </div>
 
         <!-- Vote Results -->
         <div class="results mb-3">
           <div class="row g-2 text-center">
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
             <div class="col-6 col-sm-4 col-md-2" title="Yes">
               <div class="p-2 rounded bg-light">
                 <div class="h4 mb-0">{{ votes.yes }}</div>
@@ -60,163 +82,185 @@
                 <small class="text-muted">No</small>
               </div>
             </div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
           </div>
         </div>
 
         <!-- Game Status -->
-        <div class="status-info text-center">
-          <p class="mb-0">Game Status: <strong>{{ expected }}</strong></p>
+        <div class="status mb-3">
+          <div class="row g-2 text-center">
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+            <div class="col-10 col-sm-10" title="Results">  
+              
+              <div class="status-info text-center">
+                <div class="p-2 rounded bg-transparent border border-secondary">
+                  <div class="h4 mb-0">
+                    <strong>{{ expected }}</strong>
+                  </div>
+                  <small class="text-muted">Game Status</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">&nbsp;</div>
+          </div>
         </div>
       </div>
     </main>
 
-    <footer class="footer">
+    <footer class="footer text-center mt-4">
       <p>Check back later to see if there's a game today!</p>
     </footer>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import io from 'socket.io-client'
-import axios from 'axios'
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import io from "socket.io-client";
+import axios from "axios";
 
 export default {
-  name: 'App',
+  name: "App",
   setup() {
-    const socket = ref(null)
-    const connected = ref(false)
-    const playerVote = ref(null)
+    const socket = ref(null);
+    const connected = ref(false);
+    const playerVote = ref(null);
     const votes = ref({
       yes: 0,
       yes_if_3: 0,
       yes_if_5: 0,
       no: 0,
       maybe: 0,
-    })
+    });
 
     const expected = computed(() => {
-      var straight_count = votes.value.yes + Math.floor(.5 * votes.value.maybe)
-      var yes_if_3_count = votes.value.yes_if_3 + straight_count
-      var yes_if_5_count = votes.value.yes_if_5 + straight_count
+      var straight_count =
+        votes.value.yes + Math.floor(0.5 * votes.value.maybe);
+      var yes_if_3_count = votes.value.yes_if_3 + straight_count;
+      var yes_if_5_count = votes.value.yes_if_5 + straight_count;
 
       console.log("Calculating expected game status with counts:", {
         straight_count,
         yes_if_3_count,
-        yes_if_5_count
-      })
+        yes_if_5_count,
+      });
 
-      if (yes_if_3_count >= 6) {
-        return '3v3'
-      } else if (yes_if_5_count >= 10) {
-        return '5v5'
+      if (yes_if_5_count >= 10) {
+        return "5v5";
+      } else if (yes_if_3_count >= 8) {
+        return "4v4";
+      } else if (yes_if_3_count >= 6) {
+        return "3v3";
+      } else if (straight_count >= 4) {
+        return "2v2";
       } else {
-        return `No game yet (${straight_count} total)`
+        return `No game yet (${straight_count} total)`;
       }
-    })
+    });
 
     const submitVote = (choice) => {
-      playerVote.value = choice
+      playerVote.value = choice;
       if (socket.value) {
-        socket.value.emit('vote', { vote: choice })
-        notifyUser('Vote Recorded', { body: `You voted: ${choice}` }) // TODO: remove
+        socket.value.emit("vote", { vote: choice });
       }
-    }
+    };
 
     const notifyUser = (title, options = {}) => {
-      if ('Notification' in window && Notification.permission === 'granted') {
+      if ("Notification" in window && Notification.permission === "granted") {
         new Notification(title, {
-          icon: '/icon-192x192.png',
-          ...options
-        })
+          icon: "/icon-192x192.png",
+          ...options,
+        });
       }
-    }
+    };
 
     const requestNotificationPermission = async () => {
-      if ('Notification' in window && Notification.permission === 'default') {
+      if ("Notification" in window && Notification.permission === "default") {
         try {
-          const permission = await Notification.requestPermission()
-          if (permission === 'granted') {
-            console.log('Notification permission granted')
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            console.log("Notification permission granted");
           }
         } catch (error) {
-          console.error('Error requesting notification permission:', error)
+          console.error("Error requesting notification permission:", error);
         }
       }
-    }
+    };
 
     onMounted(() => {
-      requestNotificationPermission()
+      requestNotificationPermission();
 
       // Restore this user's previous vote (if any)
       const fetchCurrentVote = async () => {
         try {
-          const resp = await axios.get('/api/current-vote')
+          const resp = await axios.get("/api/current-vote");
           if (resp && resp.data && resp.data.vote) {
-            playerVote.value = resp.data.vote
-            console.log('Restored previous vote:', resp.data.vote)
+            playerVote.value = resp.data.vote;
+            console.log("Restored previous vote:", resp.data.vote);
           }
         } catch (err) {
-          console.warn('Could not fetch current vote:', err)
+          console.warn("Could not fetch current vote:", err);
         }
-      }
-      fetchCurrentVote()
+      };
+      fetchCurrentVote();
 
-      const protocol = window.location.protocol === 'https:' ? 'https' : 'http'
-      const url = `${protocol}://${window.location.hostname}:${window.location.port || (protocol === 'https' ? 443 : 80)}`
+      const protocol = window.location.protocol === "https:" ? "https" : "http";
+      const url = `${protocol}://${window.location.hostname}:${
+        window.location.port || (protocol === "https" ? 443 : 80)
+      }`;
 
       socket.value = io(url, {
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
-        reconnectionAttempts: 5
-      })
+        reconnectionAttempts: 5,
+      });
 
-      socket.value.on('connect', () => {
-        connected.value = true
-        console.log('Connected to server')
-      })
+      socket.value.on("connect", () => {
+        connected.value = true;
+        console.log("Connected to server");
+      });
 
-      socket.value.on('disconnect', () => {
-        connected.value = false
-        console.log('Disconnected from server')
-      })
+      socket.value.on("disconnect", () => {
+        connected.value = false;
+        console.log("Disconnected from server");
+      });
 
-      socket.value.on('votes_update', (data) => {
-        console.log("Votes update received:", data)
-        votes.value = Object.assign({}, votes.value, data)
+      socket.value.on("votes_update", (data) => {
+        console.log("Votes update received:", data);
+        votes.value = Object.assign({}, votes.value, data);
         if (data.total > 0) {
-          notifyUser('Vote Update', { // todo: remove
+          notifyUser("Vote Update", {
+            // todo: remove
             body: `Yes: ${data.yes} (+${data.yes_if_3} if 3's, +${data.yes_if_5} if 5's) | No: ${data.no} | Maybe: ${data.maybe}`,
-            tag: 'votes-update',
-            requireInteraction: false
-          })
+            tag: "votes-update",
+            requireInteraction: false,
+          });
         }
-      })
+      });
 
-      socket.value.on('scheduled_message', (data) => {
-        console.log('Scheduled message received:', data)
-        notifyUser('Game Today?', {
+      socket.value.on("scheduled_message", (data) => {
+        console.log("Scheduled message received:", data);
+        notifyUser("Game Today?", {
           body: data.message,
-          tag: 'game-today?',
-          requireInteraction: true
-        })
-      })
-    })
+          tag: "game-today?",
+          requireInteraction: true,
+        });
+      });
+    });
 
     onUnmounted(() => {
       if (socket.value) {
-        socket.value.disconnect()
+        socket.value.disconnect();
       }
-    })
+    });
 
     const voteButtons = [
-      { key: 'yes', label: '👍 Yes', style: 'success' },
-      { key: 'yes_if_3', label: "👍 Yes (if 3's)", style: 'success' },
-      { key: 'yes_if_5', label: "👍 Yes (if 5's)", style: 'success' },
-      { key: 'maybe', label: '❓ Maybe', style: 'warning' },
-      { key: 'no', label: '👎 No', style: 'danger' },
-    ]
+      { key: "yes", label: "👍 Yes", style: "success" },
+      { key: "yes_if_3", label: "👍 Yes (if 3's)", style: "success" },
+      { key: "yes_if_5", label: "👍 Yes (if 5's)", style: "success" },
+      { key: "maybe", label: "❓ Maybe", style: "warning" },
+      { key: "no", label: "👎 No", style: "danger" },
+    ];
 
     return {
       connected,
@@ -225,20 +269,41 @@ export default {
       submitVote,
       expected,
       voteButtons,
-    }
-  }
-}
+    };
+  },
+};
 </script>
 
 <style scoped>
 /* Keep the original styles (trimmed for brevity) */
 /* Reuse the previous stylesheet in the repo; add a small style for ready */
-.result-card.yes-if {
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
-}
 
 .thresholds .ready {
-  color: #27AE60;
+  color: #27ae60;
   font-weight: 700;
+}
+
+/* Ensure headings render light over the dark background */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--bs-heading-color, #f5f7fa);
+}
+
+/* Make muted text readable on dark background */
+.text-muted {
+  color: rgba(245, 247, 250, 0.65) !important;
+}
+
+/* Ensure general app text is light */
+#app,
+#app p,
+#app small,
+#app .status-info,
+#app .footer {
+  color: #f5f7fa;
 }
 </style>

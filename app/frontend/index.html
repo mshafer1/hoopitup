@@ -13,8 +13,40 @@
     <link rel="icon" type="image/png" href="/icon-192x192.png">
     <link rel="apple-touch-icon" href="/icon-192x192.png">
     <title>Hoop It Up</title>
+    <style>
+        :root {
+          --bs-heading-color: #f5f7fa; /* replace with the color you want */
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            color: #f5f7fa;
+        }
+        body {
+            background-image: url('/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(16, 16, 16, 0.9);
+            pointer-events: none;
+            z-index: 0;
+        }
+        #app {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+    </style>
 </head>
 <body>
+    <div class="bg-overlay" aria-hidden="true"></div>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
 </body>
