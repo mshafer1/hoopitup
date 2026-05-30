@@ -7,7 +7,7 @@ import logging
 import pathlib
 import urllib.parse
 import uuid
-
+import atexit
 import apscheduler.schedulers.background
 import flask
 import flask_cors
@@ -44,7 +44,6 @@ socketio = flask_socketio.SocketIO(app, **extra_socket_args)
 
 # Initialize background scheduler for cron jobs
 scheduler = apscheduler.schedulers.background.BackgroundScheduler(timezone=config.SCHEDULE_TIMEZONE)
-scheduler.start()
 
 
 class VoteValues(enum.StrEnum):
@@ -53,6 +52,7 @@ class VoteValues(enum.StrEnum):
     YES_IF_5 = "yes_if_5"
     NO = "no"
     MAYBE = "maybe"
+
 
 
 _VALID_VOTE_CHOICES = {vote.value for vote in VoteValues}
@@ -73,7 +73,7 @@ def send_scheduled_message():
     message = config.SCHEDULE_MESSAGE
     timestamp = datetime.datetime.now().isoformat()
 
-    socketio.emit("scheduled_message", {"message": message, "timestamp": timestamp}, broadcast=True)
+    socketio.emit("scheduled_message", {"message": message, "timestamp": timestamp})
 
     print(f"[{timestamp}] Scheduled message sent: {message}")
 
@@ -110,14 +110,14 @@ def parse_cron_expression(cron_str):
 
 def send_current_votes():
     """Send current vote counts to a specific client"""
-    flask_socketio.emit("votes_update", vote_counts, broadcast=True)
+    MODULE_LOGGER.debug(f"Sending current votes to clients: {vote_counts}")
+    socketio.emit("votes_update", vote_counts)
 
 
 @app.route("/api/health", methods=["GET"])
 def health():
     """Health check endpoint"""
     return flask.jsonify({"status": "healthy"})
-
 
 @socketio.on("connect")
 def handle_connect(data=None):
@@ -129,8 +129,8 @@ def handle_connect(data=None):
         session_id = str(uuid.uuid4())
     sid_to_session[sid] = session_id
     print(f"Client connected: sid={sid}, session_id={session_id}")
-    flask_socketio.emit(
-        "connection_response", {"message": "Connected to server", "session_id": session_id}
+    socketio.emit(
+        "connection_response", {"message": "Connected to server", "session_id": session_id}, room=sid
     )
     # Send current votes to new client
     send_current_votes()
@@ -148,7 +148,7 @@ def handle_vote(data):
     vote_choice = data.get("vote")  # 'yes', 'no', 'maybe', 'yes_if_3', 'yes_if_5'
 
     if vote_choice not in _VALID_VOTE_CHOICES:
-        flask_socketio.emit("error", {"message": "Invalid vote choice"})
+        socketio.emit("error", {"message": "Invalid vote choice"}, room=flask.request.sid)
         return
 
     sid = flask.request.sid
@@ -186,6 +186,7 @@ try:
         name="Send scheduled game message",
         replace_existing=True,
     )
+    print(f"Scheduled message job configured: {config.SCHEDULE_CRON} - '{config.SCHEDULE_MESSAGE}'")
     scheduler.add_job(
         reset_votes,
         "cron",
@@ -198,21 +199,42 @@ try:
     scheduler.add_job(
         send_current_votes,
         "interval",
-        minutes=5,
+        minutes=10,
         id="periodic_vote_update",
         name="Periodic update of current votes to clients",
         replace_existing=True,
     )
-    print(f"Scheduled message job configured: {config.SCHEDULE_CRON} - '{config.SCHEDULE_MESSAGE}'")
 except Exception as e:
-    print(f"Error scheduling message job: {e}")
+    MODULE_LOGGER.error("Error scheduling message job: %s", e)
 
 
 @app.teardown_appcontext
 def shutdown_scheduler(exception=None):
     """Shutdown the scheduler when the app closes"""
-    if scheduler.running:
-        scheduler.shutdown()
+    # Previously this shut down the scheduler on every request teardown,
+    # which caused scheduled jobs to stop running. Scheduler shutdown
+    # should happen on process exit, not after each request.
+    return
+
+
+# Ensure the scheduler is started in the worker process (not before forking)
+def start_scheduler():
+    """Start the scheduler when the first request is handled by this process."""
+    MODULE_LOGGER.info("Checking if scheduler is running...")
+    if not scheduler.running:
+        try:
+            MODULE_LOGGER.info("Starting scheduler in process")
+            scheduler.start()
+        except Exception as e:
+            MODULE_LOGGER.error(f"Error starting scheduler (continuing): {e}")
+            # If already started concurrently, ignore
+            pass
+
+with app.app_context():
+    start_scheduler()
+
+    # Register a clean shutdown for the scheduler on process exit
+    atexit.register(lambda: scheduler.shutdown(wait=False) if scheduler.running else None)
 
 
 # region: web-server
