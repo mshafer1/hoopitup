@@ -1,66 +1,71 @@
 <template>
-  <div id="app" class="app">
-    <header class="header">
-      <h1>Hoop It Up</h1>
-      <p class="subtitle">Can you play today?</p>
+  <div id="app" class="container py-3">
+    <header class="d-flex flex-column align-items-center mb-3">
+      <h1 class="h3 mb-0">Hoop It Up</h1>
+      <p class="text-muted small">Can you play today?</p>
     </header>
 
-    <main class="main">
-      <div v-if="!connected" class="status connecting">
-        <p>Connecting...</p>
+    <main>
+      <div v-if="!connected" class="text-center py-5">
+        <div class="spinner-border text-secondary" role="status">
+          <span class="visually-hidden">Connecting...</span>
+        </div>
+        <p class="mt-2">Connecting...</p>
       </div>
 
-      <div v-else class="container">
+      <div v-else>
         <!-- Vote Buttons -->
-        <div class="vote-section">
-          <button @click="submitVote('yes')" class="btn btn-yes" :class="{ active: playerVote === 'yes' }">
-            👍 Yes
-          </button>
-
-          <button @click="submitVote('yes_if_3')" class="btn btn-yes" :class="{ active: playerVote === 'yes_if_3' }">
-            👍 Yes (if enough for 3's)
-          </button>
-
-          <button @click="submitVote('yes_if_5')" class="btn btn-yes" :class="{ active: playerVote === 'yes_if_5' }">
-            👍 Yes (if enough for 5's)
-          </button>
-
-          <button @click="submitVote('maybe')" class="btn btn-maybe" :class="{ active: playerVote === 'maybe' }">
-            ❓ Maybe
-          </button>
-
-          <button @click="submitVote('no')" class="btn btn-no" :class="{ active: playerVote === 'no' }">
-            👎 No
-          </button>
+        <div class="vote-section mb-3">
+          <div class="row g-2">
+            <div class="col-6 col-sm-6 col-md-2" v-for="btn in voteButtons" :key="btn.key">
+              <button @click="submitVote(btn.key)"
+                      class="btn w-100"
+                      :class="{'btn-outline-success': btn.style==='success' && playerVote!==btn.key, 'btn-success': btn.style==='success' && playerVote===btn.key, 'btn-outline-warning': btn.style==='warning' && playerVote!==btn.key, 'btn-warning': btn.style==='warning' && playerVote===btn.key, 'btn-outline-danger': btn.style==='danger' && playerVote!==btn.key, 'btn-danger': btn.style==='danger' && playerVote===btn.key}">
+                {{ btn.label }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Vote Results -->
-        <div class="results">
-          <div class="result-card yes">
-            <span class="count">{{ votes.yes }}</span>
-            <span class="label">Yes</span>
-          </div>
-          <div class="result-card yes-if">
-            <span class="count">{{ votes.yes_if_3 }}</span>
-            <span class="label">Yes (if 3's)</span>
-          </div>
-          <div class="result-card yes-if">
-            <span class="count">{{ votes.yes_if_5 }}</span>
-            <span class="label">Yes (if 5's)</span>
-          </div>
-          <div class="result-card maybe">
-            <span class="count">{{ votes.maybe }}</span>
-            <span class="label">Maybe</span>
-          </div>
-          <div class="result-card no">
-            <span class="count">{{ votes.no }}</span>
-            <span class="label">No</span>
+        <div class="results mb-3">
+          <div class="row g-2 text-center">
+            <div class="col-6 col-sm-4 col-md-2" title="Yes">
+              <div class="p-2 rounded bg-light">
+                <div class="h4 mb-0">{{ votes.yes }}</div>
+                <small class="text-muted">Yes</small>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2" title="Yes (if 3's)">
+              <div class="p-2 rounded bg-success text-white">
+                <div class="h4 mb-0">{{ votes.yes_if_3 }}</div>
+                <small>Yes (if 3's)</small>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2" title="Yes (if 5's)">
+              <div class="p-2 rounded bg-success text-white">
+                <div class="h4 mb-0">{{ votes.yes_if_5 }}</div>
+                <small>Yes (if 5's)</small>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2" title="Maybe">
+              <div class="p-2 rounded bg-warning text-dark">
+                <div class="h4 mb-0">{{ votes.maybe }}</div>
+                <small>Maybe</small>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md-2" title="No">
+              <div class="p-2 rounded bg-light">
+                <div class="h4 mb-0">{{ votes.no }}</div>
+                <small class="text-muted">No</small>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Game Status -->
-        <div class="status-info">
-          <p class="total">Game Status: <strong>{{ expected }}</strong></p>
+        <div class="status-info text-center">
+          <p class="mb-0">Game Status: <strong>{{ expected }}</strong></p>
         </div>
       </div>
     </main>
@@ -190,12 +195,21 @@ export default {
       }
     })
 
+    const voteButtons = [
+      { key: 'yes', label: '👍 Yes', style: 'success' },
+      { key: 'yes_if_3', label: "👍 Yes (if 3's)", style: 'success' },
+      { key: 'yes_if_5', label: "👍 Yes (if 5's)", style: 'success' },
+      { key: 'maybe', label: '❓ Maybe', style: 'warning' },
+      { key: 'no', label: '👎 No', style: 'danger' },
+    ]
+
     return {
       connected,
       playerVote,
       votes,
       submitVote,
       expected,
+      voteButtons,
     }
   }
 }
