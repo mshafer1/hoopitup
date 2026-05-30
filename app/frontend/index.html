@@ -1,53 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Hoop It Up">
-    <meta name="theme-color" content="#667eea">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Hoop It Up">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="/icon-192x192.png">
-    <link rel="apple-touch-icon" href="/icon-192x192.png">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Hoop It Up" />
+    <meta name="theme-color" content="#667eea" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Hoop It Up" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" href="/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="/icon-192x192.png" />
     <title>Hoop It Up</title>
     <style>
-        :root {
-          --bs-heading-color: #f5f7fa; /* replace with the color you want */
-        }
-        html, body {
-            height: 100%;
-            margin: 0;
-            color: #f5f7fa;
-        }
+      :root {
+        --bs-heading-color: #f5f7fa; /* replace with the color you want */
+        /* --bs-btn-warning-bg: #977307; replace with the color you want */
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        color: #f5f7fa;
+        font-size: 18pt;
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
+      }
+      @media screen and (max-width: 576px) {
+        html,
         body {
-            background-image: url('/background.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+          font-size: 14pt;
         }
-        .bg-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(10, 10, 10, 0.9);
-            pointer-events: none;
-            z-index: 0;
-        }
-        #app {
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-        }
+      }
+      body {
+        background-image: url("/background.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .bg-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(10, 10, 10, 0.9);
+        pointer-events: none;
+        z-index: 0;
+      }
+      #app {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="bg-overlay" aria-hidden="true"></div>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
-</body>
+  </body>
 </html>

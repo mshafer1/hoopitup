@@ -52,8 +52,29 @@
           </div>
         </div>
 
+        <!-- Game Status -->
+        <div class="status mb-3 mt-5">
+          <div class="row g-2 text-center">
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
+            <div class="col-12 col-sm-12 col-md-10" title="Results">
+              <div class="status-info text-center">
+                <div class="p-2 rounded bg-transparent border border-secondary">
+                  <div class="h4 mb-0">
+                    <strong>{{ expected }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
+          </div>
+        </div>
+
         <!-- Vote Results -->
-        <div class="results mb-3 mt-5">
+        <div class="results mb-3">
           <div class="row">
             <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
               &nbsp;
@@ -105,26 +126,7 @@
           </div>
         </div>
 
-        <!-- Game Status -->
-        <div class="status mb-3">
-          <div class="row g-2 text-center">
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
-              &nbsp;
-            </div>
-            <div class="col-12 col-sm-12 col-md-10" title="Results">
-              <div class="status-info text-center">
-                <div class="p-2 rounded bg-transparent border border-secondary">
-                  <div class="h4 mb-0">
-                    <strong>{{ expected }}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
-              &nbsp;
-            </div>
-          </div>
-        </div>
+
       </div>
     </main>
 
@@ -323,6 +325,10 @@ h6 {
   color: var(--bs-heading-color, #f5f7fa);
 }
 
+h1 {
+  font-size: 2rem;
+}
+
 /* Make muted text readable on dark background */
 .text-muted {
   color: rgba(245, 247, 250, 0.65) !important;
@@ -341,6 +347,11 @@ h6 {
 .results .p-2 {
   background-color: rgba(128, 128, 128, 0.5) !important;
   border-color: rgba(128, 128, 128, 0.5) !important;
+}
+
+.btn-warning {
+  --bs-btn-hover-bg: #977307 !important;
+  --bs-btn-bg: #d4a004 !important;
 }
 
 /* Non-active (outline) vote buttons: give them a 50% transparent background
