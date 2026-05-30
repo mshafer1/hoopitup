@@ -1,13 +1,14 @@
 """
 Hoop It Up Backend - Flask with SocketIO
 """
+import atexit
 import datetime
 import enum
 import logging
 import pathlib
 import urllib.parse
 import uuid
-import atexit
+
 import apscheduler.schedulers.background
 import flask
 import flask_cors
@@ -52,7 +53,6 @@ class VoteValues(enum.StrEnum):
     YES_IF_5 = "yes_if_5"
     NO = "no"
     MAYBE = "maybe"
-
 
 
 _VALID_VOTE_CHOICES = {vote.value for vote in VoteValues}
@@ -119,6 +119,7 @@ def health():
     """Health check endpoint"""
     return flask.jsonify({"status": "healthy"})
 
+
 @socketio.on("connect")
 def handle_connect(data=None):
     """Handle client connection"""
@@ -130,7 +131,9 @@ def handle_connect(data=None):
     sid_to_session[sid] = session_id
     print(f"Client connected: sid={sid}, session_id={session_id}")
     socketio.emit(
-        "connection_response", {"message": "Connected to server", "session_id": session_id}, room=sid
+        "connection_response",
+        {"message": "Connected to server", "session_id": session_id},
+        room=sid,
     )
     # Send current votes to new client
     send_current_votes()
@@ -230,6 +233,7 @@ def start_scheduler():
             # If already started concurrently, ignore
             pass
 
+
 with app.app_context():
     start_scheduler()
 
@@ -278,7 +282,12 @@ def _handle_path(parsed):
         session_id = str(uuid.uuid4())
     # set or renew cookie on each visit to keep active users from losing their session_id
     resp.set_cookie(
-        "session_id", session_id, max_age=_SECONDS_IN_A_YEAR, httponly=True, samesite="Strict"
+        "session_id",
+        session_id,
+        max_age=_SECONDS_IN_A_YEAR,
+        httponly=True,
+        samesite="Strict",
+        secure=not config.DEBUG,
     )
     return resp
 
