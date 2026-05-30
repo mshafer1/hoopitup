@@ -53,7 +53,18 @@
         </div>
 
         <!-- Vote Results -->
-        <div class="results mb-3">
+        <div class="results mb-3 mt-5">
+          <div class="row">
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
+            <div class="col-12 col-md-10" title="Current Votes">
+              <div class="h5 mb-0">Responses:</div>
+            </div>
+            <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
+              &nbsp;
+            </div>
+          </div>
           <div class="row g-2 text-center">
             <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
               &nbsp;
@@ -61,7 +72,7 @@
             <div class="col-6 col-sm-4 col-md-2" title="Yes">
               <div class="p-2 rounded bg-light">
                 <div class="h4 mb-0">{{ votes.yes }}</div>
-                <small class="text-muted">Yes</small>
+                <small>Yes</small>
               </div>
             </div>
             <div class="col-6 col-sm-4 col-md-2" title="Yes (if 3's)">
@@ -77,7 +88,7 @@
               </div>
             </div>
             <div class="col-6 col-sm-4 col-md-2" title="Maybe">
-              <div class="p-2 rounded bg-warning text-dark">
+              <div class="p-2 rounded bg-warning">
                 <div class="h4 mb-0">{{ votes.maybe }}</div>
                 <small>Maybe</small>
               </div>
@@ -85,7 +96,7 @@
             <div class="col-6 col-sm-4 col-md-2" title="No">
               <div class="p-2 rounded bg-light">
                 <div class="h4 mb-0">{{ votes.no }}</div>
-                <small class="text-muted">No</small>
+                <small>No</small>
               </div>
             </div>
             <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
@@ -100,13 +111,12 @@
             <div class="col-1 col-md-1 d-none d-md-block" aria-hidden="true">
               &nbsp;
             </div>
-            <div class="col-10 col-sm-10" title="Results">
+            <div class="col-12 col-sm-12 col-md-10" title="Results">
               <div class="status-info text-center">
                 <div class="p-2 rounded bg-transparent border border-secondary">
                   <div class="h4 mb-0">
                     <strong>{{ expected }}</strong>
                   </div>
-                  <small class="text-muted">Game Status</small>
                 </div>
               </div>
             </div>
@@ -325,5 +335,37 @@ h6 {
 #app .status-info,
 #app .footer {
   color: #f5f7fa;
+}
+
+/* Result cards: force a gray background at 50% opacity */
+.results .p-2 {
+  background-color: rgba(128, 128, 128, 0.5) !important;
+  border-color: rgba(128, 128, 128, 0.5) !important;
+}
+
+/* Non-active (outline) vote buttons: give them a 50% transparent background
+   matching their semantic color while keeping readable text. Active solid
+   buttons keep their normal appearance. */
+.vote-section .btn {
+  color: #fff !important;
+}
+.vote-section .btn.btn-outline-success {
+  background-color: rgba(45, 45, 45, 0.8) !important;
+  border-color: rgba(25, 135, 84, 0.75) !important;
+}
+.vote-section .btn.btn-outline-warning {
+  background-color: rgba(45, 45, 45, 0.8) !important;
+  border-color: rgba(255, 193, 7, 0.75) !important;
+}
+.vote-section .btn.btn-outline-danger {
+  background-color: rgba(45, 45, 45, 0.8) !important;
+  border-color: rgba(220, 53, 69, 0.75) !important;
+}
+
+/* Ensure solid/active buttons remain fully colored and legible */
+.vote-section .btn.btn-success,
+.vote-section .btn.btn-warning,
+.vote-section .btn.btn-danger {
+  color: #fff;
 }
 </style>
