@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
-  hoopitup:
+  web:
     build:
       context: ..
       dockerfile: hosting/Dockerfile
     container_name: hoopitup-app
     ports:
-      - "127.0.0.1:${port_prefix:-40}80:80"
+      - "127.0.0.1:${port_prefix:-40}80:5000"
     environment:
       - FLASK_ENV=production
     restart: unless-stopped
@@ -17,8 +15,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    volumes:
-      - ./uwsgi.ini:/app/uwsgi.ini:ro
     logging:
       driver: "json-file"
       options:

@@ -271,6 +271,7 @@ def start_scheduler():
             MODULE_LOGGER.error(f"Error starting scheduler (continuing): {e}")
             # If already started concurrently, ignore
             pass
+    MODULE_LOGGER.info("Scheduler should be running")
 
 
 with app.app_context():
