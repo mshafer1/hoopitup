@@ -14,13 +14,18 @@ import apscheduler.schedulers.background
 import flask
 import flask_cors
 import flask_socketio
+from flask_wtf import CSRFProtect
 
 from hoopitup import config
 
 app = flask.Flask(__name__, static_folder=None)
 app.config["SECRET_KEY"] = config.SECRET_KEY
+# Initialize CSRF protection (Flask-WTF)
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 MODULE_LOGGER = logging.getLogger(__name__)
+MODULE_LOGGER.info("CSRF protection enabled")
 MODULE_DIR = pathlib.Path(__file__).parent
 FRONTEND_PATH = MODULE_DIR / ".." / ".." / "frontend"
 DIST_PATH = (FRONTEND_PATH / "dist").resolve()
