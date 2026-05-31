@@ -31,6 +31,10 @@ ni-python-styleguide = "^0.5.0"
 pip-audit = "^2.10.0"
 bandit = "^1.9.4"
 
+
+[tool.poetry.group.server.dependencies]
+uwsgi = {version="^2.0.31", platform="linux"}
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

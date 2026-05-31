@@ -1,5 +1,5 @@
 # Multi-stage build: Build frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:lts-alpine3.23@sha256:2bdb65ed1dab192432bc31c95f94155ca5ad7fc1392fb7eb7526ab682fa5bf14 AS frontend-builder
 WORKDIR /app/frontend
 COPY app/frontend/package*.json ./
 RUN npm install
@@ -9,7 +9,7 @@ RUN npm run build
 # Poetry compile stage: Export dependencies
 FROM python:3.11-slim AS poetry-export
 WORKDIR /app
-RUN pip install --no-cache-dir poetry==1.5.1
+RUN pip install --no-cache-dir poetry==2.4.1 poetry-plugin-export
 COPY app/backend/pyproject.toml app/backend/poetry.lock ./
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
@@ -18,9 +18,7 @@ FROM python:3.11-slim
 
 # Install nginx and uwsgi
 RUN apt-get update && apt-get install -y \
-    nginx \
     uwsgi \
-    uwsgi-plugin-python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -33,13 +31,10 @@ COPY app/backend/ ./app/backend/
 COPY --from=poetry-export /app/requirements.txt ./
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt uwsgi
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy built frontend from builder stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-
-# Copy nginx configuration
-COPY hosting/nginx.conf /etc/nginx/nginx.conf
 
 # Copy uwsgi configuration
 COPY hosting/uwsgi.ini /app/uwsgi.ini

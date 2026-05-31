@@ -1948,6 +1948,18 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 
 [[package]]
+name = "uwsgi"
+version = "2.0.31"
+description = "The uWSGI server"
+optional = false
+python-versions = "*"
+groups = ["server"]
+markers = "sys_platform == \"linux\""
+files = [
+    {file = "uwsgi-2.0.31.tar.gz", hash = "sha256:e8f8b350ccc106ff93a65247b9136f529c14bf96b936ac5b264c6ff9d0c76257"},
+]
+
+[[package]]
 name = "virtualenv"
 version = "21.3.3"
 description = "Virtual Python Environment builder"
@@ -2019,4 +2031,4 @@ email = ["email-validator (>=2.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "8b2a9d121eb9b116740771aa99ce323fbdd0cad2ed7b79faac4e0562c3deba2e"
+content-hash = "aa2425135dd47c2af68ddfe4030fb05237430091af05f0d99493c846779bb1d2"
