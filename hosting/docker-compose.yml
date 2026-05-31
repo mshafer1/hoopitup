@@ -1,0 +1,24 @@
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: hosting/Dockerfile
+    container_name: hoopitup-app
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:${port_prefix:-40}80:5000"
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${port_prefix:-40}80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
