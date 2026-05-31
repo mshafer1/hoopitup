@@ -12,12 +12,6 @@ SECRET_KEY = config(
 Secret key for Flask sessions and CSRF protection (required).
 """
 
-DOMAIN_NAME = config("DOMAIN_NAME", default="localhost")
-"""
-Domain name for the application.
-Used for CORS and frontend connection URLs.
-"""
-
 DEBUG = config("DEBUG", default=False, cast=bool)
 """
 Debug mode (should be False in production).

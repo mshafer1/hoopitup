@@ -19,15 +19,15 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Copy backend code
-COPY app/backend/ /app/backend/
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy exported requirements from poetry stage
 COPY --from=poetry-export /app/requirements.txt ./
 
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend code
+COPY app/backend/ /app/backend/
 
 # Copy built frontend from builder stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
