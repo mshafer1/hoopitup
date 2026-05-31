@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:${port_prefix:-40}80:5000"
+      - "${port_prefix:-40}80:5000"
     environment:
       - FLASK_ENV=production
     restart: unless-stopped
