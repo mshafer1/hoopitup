@@ -151,6 +151,29 @@ def handle_disconnect():
     return  # disconnected does not trigger a vote change, so we can skip updating votes on disconnect
 
 
+@app.route("/api/vote", methods=["POST"])
+def handle_vote_api():
+    """Handle vote submission via HTTP POST"""
+    data = flask.request.get_json()
+    if not data:
+        return flask.jsonify({"error": "Invalid JSON"}), 400
+
+    vote_choice = data.get("vote")
+    if vote_choice not in _VALID_VOTE_CHOICES:
+        return flask.jsonify({"error": "Invalid vote choice"}), 400
+
+    session_id = flask.request.cookies.get("session_id")
+    if not session_id:
+        return flask.jsonify({"error": "Session ID not found"}), 400
+
+    _upsert_vote(vote_choice, session_id)
+
+    # Broadcast updated vote counts to all clients
+    send_current_votes()
+
+    return flask.jsonify({"current_votes": vote_counts})
+
+
 @socketio.on("vote")
 def handle_vote(data):
     """Handle vote submission"""
@@ -169,6 +192,12 @@ def handle_vote(data):
             session_id = str(uuid.uuid4())
         sid_to_session[sid] = session_id
 
+    _upsert_vote(vote_choice, session_id)
+    # Broadcast updated vote counts to all clients
+    send_current_votes()
+
+
+def _upsert_vote(vote_choice, session_id):
     if session_id not in votes:
         votes[session_id] = vote_choice
         vote_counts[vote_choice] += 1
@@ -181,8 +210,12 @@ def handle_vote(data):
                 vote_counts[old_vote] = 0  # Ensure count doesn't go negative
             votes[session_id] = vote_choice
             vote_counts[vote_choice] += 1
-    # Broadcast updated vote counts to all clients
-    send_current_votes()
+
+
+@app.route("/api/get-votes", methods=["GET"])
+def get_votes():
+    """Endpoint to get current vote counts"""
+    return flask.jsonify(vote_counts)
 
 
 # Schedule the message sending job
