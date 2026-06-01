@@ -81,7 +81,7 @@ def send_scheduled_message():
 
     socketio.emit("scheduled_message", {"message": message, "timestamp": timestamp})
 
-    MODULE_LOGGER("[%s] Scheduled message sent: %s", timestamp, message)
+    MODULE_LOGGER.info("[%s] Scheduled message sent: %s", timestamp, message)
 
 
 def send_summary_message():
@@ -147,7 +147,7 @@ def handle_connect(data=None):
         # Should not happen if HTTP route sets cookie, but fallback
         session_id = str(uuid.uuid4())
     sid_to_session[sid] = session_id
-    MODULE_LOGGER("Client connected: sid=%s, session_id=%s", sid, session_id)
+    MODULE_LOGGER.info("Client connected: sid=%s, session_id=%s", sid, session_id)
     socketio.emit(
         "connection_response",
         {"message": "Connected to server", "session_id": session_id},
@@ -254,7 +254,7 @@ try:
             name="Send summary game message",
             replace_existing=True,
         )
-        MODULE_LOGGER("Scheduled summary message job configured: %s", config.SCHEDULE_SUMMARY_TIME)
+        MODULE_LOGGER.info("Scheduled summary message job configured: %s", config.SCHEDULE_SUMMARY_TIME)
     scheduler.add_job(
         reset_votes,
         "cron",
@@ -312,7 +312,7 @@ with app.app_context():
 
 @app.route("/", defaults={"path": "index.html"}, methods=["GET"])
 def _get_index(path):
-    MODULE_LOGGER("Handling root path")
+    MODULE_LOGGER.info("Handling root path")
     resp = _handle_path("index.html")
     return resp
 
@@ -333,7 +333,7 @@ def _get_current_vote():
 @app.route("/<path:path>", methods=["GET"])
 def get_dir(path):
     parsed = urllib.parse.urlparse(path).path
-    MODULE_LOGGER("Requested path is", path, "parsed to", parsed)
+    MODULE_LOGGER.info("Requested path is", path, "parsed to", parsed)
     resp = _handle_path(parsed)
     return resp
 
