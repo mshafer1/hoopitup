@@ -638,6 +638,21 @@ pycodestyle = "*"
 setuptools = "*"
 
 [[package]]
+name = "flake8-logging"
+version = "1.8.0"
+description = "A Flake8 plugin that checks for issues using the standard library logging module."
+optional = false
+python-versions = ">=3.9"
+groups = ["lint"]
+files = [
+    {file = "flake8_logging-1.8.0-py3-none-any.whl", hash = "sha256:bb3fcf0fb2b4f35d7ebb0c1dc02af16db00c7c858c5a018370172e939dd6f225"},
+    {file = "flake8_logging-1.8.0.tar.gz", hash = "sha256:765046763d44d1dc051071c047fe0fa056d71a524505207c3fbdc47532e7d8af"},
+]
+
+[package.dependencies]
+flake8 = ">=3,<3.2 || >3.2"
+
+[[package]]
 name = "flake8-tidy-imports"
 version = "4.12.0"
 description = "A flake8 plugin that helps you write tidier imports."
@@ -2251,4 +2266,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "aae219adc550b448e444561034b3032470916e26dc7995d3af8e0e9cc9b4f84b"
+content-hash = "929add9ce34b059e4ba3af9b31ad50c0f753f0e6f9c3e9951d7c38b19a432f5f"

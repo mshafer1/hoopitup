@@ -32,13 +32,13 @@ DIST_PATH = (FRONTEND_PATH / "dist").resolve()
 
 _SECONDS_IN_A_YEAR = 60 * 60 * 24 * 365
 
-logging.warning("Dist path is: %s", DIST_PATH)
+MODULE_LOGGER.warning("Dist path is: %s", DIST_PATH)
 
 extra_socket_args = {}
 if config.DEBUG:
     logging.basicConfig(level=logging.DEBUG)
     MODULE_LOGGER.setLevel(logging.DEBUG)
-    logging.warning("enabling cross-origin-resource-loading")
+    MODULE_LOGGER.warning("enabling cross-origin-resource-loading")
     cors = flask_cors.CORS(app)
     extra_socket_args = {
         "cors_allowed_origins": "*",
@@ -81,7 +81,7 @@ def send_scheduled_message():
 
     socketio.emit("scheduled_message", {"message": message, "timestamp": timestamp})
 
-    print(f"[{timestamp}] Scheduled message sent: {message}")
+    MODULE_LOGGER("[%s] Scheduled message sent: %s", timestamp, message)
 
 
 def send_summary_message():
@@ -91,7 +91,7 @@ def send_summary_message():
     """
     if any(key != "no" and count > 0 for key, count in vote_counts.items()):
         socketio.emit("daily_summary", vote_counts)
-        MODULE_LOGGER.info(f"Sent daily summary message with vote counts: {vote_counts}")
+        MODULE_LOGGER.info("Sent daily summary message with vote counts: %s", vote_counts)
     else:
         MODULE_LOGGER.info("No votes to summarize in daily summary message, skipping emit.")
 
@@ -128,7 +128,7 @@ def parse_cron_expression(cron_str):
 
 def send_current_votes():
     """Send current vote counts to a specific client"""
-    MODULE_LOGGER.debug(f"Sending current votes to clients: {vote_counts}")
+    MODULE_LOGGER.debug("Sending current votes to clients: %s", vote_counts)
     socketio.emit("votes_update", vote_counts)
 
 
@@ -147,7 +147,7 @@ def handle_connect(data=None):
         # Should not happen if HTTP route sets cookie, but fallback
         session_id = str(uuid.uuid4())
     sid_to_session[sid] = session_id
-    print(f"Client connected: sid={sid}, session_id={session_id}")
+    MODULE_LOGGER("Client connected: sid=%s, session_id=%s", sid, session_id)
     socketio.emit(
         "connection_response",
         {"message": "Connected to server", "session_id": session_id},
@@ -240,17 +240,21 @@ try:
         name="Send scheduled game message",
         replace_existing=True,
     )
-    print(f"Scheduled message job configured: {config.SCHEDULE_CRON} - '{config.SCHEDULE_MESSAGE}'")
+    MODULE_LOGGER(
+        "Scheduled message job configured: %s - '%s'", config.SCHEDULE_CRON, config.SCHEDULE_MESSAGE
+    )
     if config.SCHEDULE_SUMMARY_TIME is not None:
         scheduler.add_job(
             send_summary_message,
             "cron",
-            **parse_cron_expression(f"{config.SCHEDULE_SUMMARY_TIME.split(':')[1]} {config.SCHEDULE_SUMMARY_TIME.split(':')[0]} * * *"),
+            **parse_cron_expression(
+                f"{config.SCHEDULE_SUMMARY_TIME.split(':')[1]} {config.SCHEDULE_SUMMARY_TIME.split(':')[0]} * * *"
+            ),
             id="summary_message",
             name="Send summary game message",
             replace_existing=True,
         )
-        print(f"Scheduled summary message job configured: {config.SCHEDULE_SUMMARY_TIME}")
+        MODULE_LOGGER("Scheduled summary message job configured: %s", config.SCHEDULE_SUMMARY_TIME)
     scheduler.add_job(
         reset_votes,
         "cron",
@@ -269,7 +273,7 @@ try:
         replace_existing=True,
     )
 except Exception as e:
-    MODULE_LOGGER.error("Error scheduling message job: %s", e)
+    MODULE_LOGGER.exception("Error scheduling message job: %s", e)
 
 
 @app.teardown_appcontext
@@ -290,7 +294,7 @@ def start_scheduler():
             MODULE_LOGGER.info("Starting scheduler in process")
             scheduler.start()
         except Exception as e:
-            MODULE_LOGGER.error(f"Error starting scheduler (continuing): {e}")
+            MODULE_LOGGER.exception("Error starting scheduler (continuing): %s", e)
             # If already started concurrently, ignore
             pass
     MODULE_LOGGER.info("Scheduler should be running")
@@ -307,14 +311,14 @@ with app.app_context():
 
 
 @app.route("/", defaults={"path": "index.html"}, methods=["GET"])
-def get_index(path):
-    print("Handling root path")
+def _get_index(path):
+    MODULE_LOGGER("Handling root path")
     resp = _handle_path("index.html")
     return resp
 
 
 @app.route("/api/current-vote", methods=["GET"])
-def get_current_vote():
+def _get_current_vote():
     session_id = flask.request.cookies.get("session_id")
     if not session_id:
         return flask.jsonify({"error": "Session ID not found"}), 400
@@ -329,16 +333,16 @@ def get_current_vote():
 @app.route("/<path:path>", methods=["GET"])
 def get_dir(path):
     parsed = urllib.parse.urlparse(path).path
-    print("Requested path is", path, "parsed to", parsed)
+    MODULE_LOGGER("Requested path is", path, "parsed to", parsed)
     resp = _handle_path(parsed)
     return resp
 
 
 def _handle_path(parsed):
     session_id = flask.request.cookies.get("session_id")
-    MODULE_LOGGER.debug(f"Handling parsed: {parsed}, session_id: {session_id}")
+    MODULE_LOGGER.debug("Handling parsed: {parsed}, session_id: %s", session_id)
     resource_path = "/" + (parsed if "." in parsed else "index.html")
-    MODULE_LOGGER.debug(f"Resource path resolved to: {resource_path}")
+    MODULE_LOGGER.debug("Resource path resolved to: %s", resource_path)
     resp = flask.make_response(flask.send_from_directory(DIST_PATH, resource_path.lstrip("/")))
     if not session_id:
         session_id = str(uuid.uuid4())
