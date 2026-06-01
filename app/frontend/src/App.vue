@@ -125,8 +125,6 @@
             </div>
           </div>
         </div>
-
-
       </div>
     </main>
 
@@ -259,14 +257,22 @@ export default {
       socket.value.on("votes_update", (data) => {
         console.log("Votes update received:", data);
         votes.value = Object.assign({}, votes.value, data);
-        if (data.total > 0) {
-          notifyUser("Vote Update", {
-            // todo: remove
-            body: `Yes: ${data.yes} (+${data.yes_if_3} if 3's, +${data.yes_if_5} if 5's) | No: ${data.no} | Maybe: ${data.maybe}`,
-            tag: "votes-update",
-            requireInteraction: false,
-          });
+      });
+
+      socket.value.on("daily_summary", (data) => {
+        console.log("Daily summary received:", data);
+        votes.value = Object.assign({}, votes.value, data);
+        var title = "Game on!";
+        var message = "Looks like we have " + expected.value + " today!";
+        if (expected.value.startsWith("No game yet")) {
+          title = "Looks like no game today.";
+          message = expected.value.replace(" yet ", " ");
         }
+        notifyUser(title, {
+          body: message,
+          tag: "daily-summary",
+          requireInteraction: false,
+        });
       });
 
       socket.value.on("scheduled_message", (data) => {

@@ -84,6 +84,18 @@ def send_scheduled_message():
     print(f"[{timestamp}] Scheduled message sent: {message}")
 
 
+def send_summary_message():
+    """
+    Send a daily summary message to all connected clients.
+    This function is called by the scheduler based on the SCHEDULE_SUMMARY_TIME configuration.
+    """
+    if any(key != "no" and count > 0 for key, count in vote_counts.items()):
+        socketio.emit("daily_summary", vote_counts)
+        MODULE_LOGGER.info(f"Sent daily summary message with vote counts: {vote_counts}")
+    else:
+        MODULE_LOGGER.info("No votes to summarize in daily summary message, skipping emit.")
+
+
 def reset_votes():
     """Reset all votes and notify clients"""
     votes.clear()
@@ -229,6 +241,16 @@ try:
         replace_existing=True,
     )
     print(f"Scheduled message job configured: {config.SCHEDULE_CRON} - '{config.SCHEDULE_MESSAGE}'")
+    if config.SCHEDULE_SUMMARY_TIME is not None:
+        scheduler.add_job(
+            send_summary_message,
+            "cron",
+            **parse_cron_expression(f"{config.SCHEDULE_SUMMARY_TIME.split(':')[1]} {config.SCHEDULE_SUMMARY_TIME.split(':')[0]} * * *"),
+            id="summary_message",
+            name="Send summary game message",
+            replace_existing=True,
+        )
+        print(f"Scheduled summary message job configured: {config.SCHEDULE_SUMMARY_TIME}")
     scheduler.add_job(
         reset_votes,
         "cron",

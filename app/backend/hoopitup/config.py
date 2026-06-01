@@ -38,7 +38,7 @@ SCHEDULE_TIMEZONE = config("SCHEDULE_TIMEZONE", default="UTC")
 Timezone for cron schedule.
 """
 
-SCHEDULE_SUMMARY_TIME = config("SCHEDULE_SUMMARY_TIME", default="12:00")
+SCHEDULE_SUMMARY_TIME = config("SCHEDULE_SUMMARY_TIME", default=None)
 """
 Daily summary time (HH:MM) to send a daily summary message.
 Example: '12:00' sends summary every day at 12:00 (server timezone configured by SCHEDULE_TIMEZONE).
