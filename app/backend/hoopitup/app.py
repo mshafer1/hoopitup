@@ -45,6 +45,10 @@ if config.DEBUG:
         "logger": True,
         "enginio_logger": True,
     }
+else:
+    logging.basicConfig(level=logging.INFO)
+    MODULE_LOGGER.setLevel(logging.INFO)
+    MODULE_LOGGER.warning("NO cross-origin-resource-loading")
 
 socketio = flask_socketio.SocketIO(app, **extra_socket_args)
 
