@@ -244,7 +244,7 @@ try:
         name="Send scheduled game message",
         replace_existing=True,
     )
-    MODULE_LOGGER(
+    MODULE_LOGGER.info(
         "Scheduled message job configured: %s - '%s'", config.SCHEDULE_CRON, config.SCHEDULE_MESSAGE
     )
     if config.SCHEDULE_SUMMARY_TIME is not None:
