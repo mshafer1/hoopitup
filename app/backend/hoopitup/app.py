@@ -262,8 +262,7 @@ try:
     scheduler.add_job(
         reset_votes,
         "cron",
-        hour=0,
-        minute=0,
+        **parse_cron_expression("0 0 * * *"),  # Every day at midnight
         id="daily_reset",
         name="Daily reset of votes",
         replace_existing=True,
