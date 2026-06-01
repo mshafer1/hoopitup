@@ -337,14 +337,14 @@ def _get_current_vote():
 @app.route("/<path:path>", methods=["GET"])
 def get_dir(path):
     parsed = urllib.parse.urlparse(path).path
-    MODULE_LOGGER.info("Requested path is", path, "parsed to", parsed)
+    MODULE_LOGGER.info("Requested path is %s parsed to %s", path, parsed)
     resp = _handle_path(parsed)
     return resp
 
 
 def _handle_path(parsed):
     session_id = flask.request.cookies.get("session_id")
-    MODULE_LOGGER.debug("Handling parsed: {parsed}, session_id: %s", session_id)
+    MODULE_LOGGER.debug("Handling parsed: %s, session_id: %s", parsed, session_id)
     resource_path = "/" + (parsed if "." in parsed else "index.html")
     MODULE_LOGGER.debug("Resource path resolved to: %s", resource_path)
     resp = flask.make_response(flask.send_from_directory(DIST_PATH, resource_path.lstrip("/")))
