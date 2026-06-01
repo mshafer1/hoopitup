@@ -316,7 +316,7 @@ with app.app_context():
 
 @app.route("/", defaults={"path": "index.html"}, methods=["GET"])
 def _get_index(path):
-    MODULE_LOGGER.info("Handling root path")
+    MODULE_LOGGER.debug("Handling root path")
     resp = _handle_path("index.html")
     return resp
 
@@ -337,7 +337,7 @@ def _get_current_vote():
 @app.route("/<path:path>", methods=["GET"])
 def get_dir(path):
     parsed = urllib.parse.urlparse(path).path
-    MODULE_LOGGER.info("Requested path is %s parsed to %s", path, parsed)
+    MODULE_LOGGER.debug("Requested path is %s parsed to %s", path, parsed)
     resp = _handle_path(parsed)
     return resp
 
