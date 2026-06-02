@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json' assert { type: 'json' }
 
 export default defineConfig({
   plugins: [
@@ -40,5 +41,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173
+  },
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version)
   }
 });

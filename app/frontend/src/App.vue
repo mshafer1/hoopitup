@@ -155,7 +155,7 @@ export default {
       no: 0,
       maybe: 0,
     });
-    const version = ref(process.env.version || "0")
+    const version = __APP_VERSION__
 
     const expected = computed(() => {
       var straight_count =
