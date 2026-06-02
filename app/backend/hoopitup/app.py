@@ -243,6 +243,7 @@ try:
         id="scheduled_message",
         name="Send scheduled game message",
         replace_existing=True,
+        timezone=config.SCHEDULE_TIMEZONE,
     )
     MODULE_LOGGER.info(
         "Scheduled message job configured: %s - '%s'", config.SCHEDULE_CRON, config.SCHEDULE_MESSAGE
@@ -257,6 +258,7 @@ try:
             id="summary_message",
             name="Send summary game message",
             replace_existing=True,
+            timezone=config.SCHEDULE_TIMEZONE,
         )
         MODULE_LOGGER.info("Scheduled summary message job configured: %s", config.SCHEDULE_SUMMARY_TIME)
     scheduler.add_job(
@@ -266,11 +268,12 @@ try:
         id="daily_reset",
         name="Daily reset of votes",
         replace_existing=True,
+        timezone=config.SCHEDULE_TIMEZONE,
     )
     scheduler.add_job(
         send_current_votes,
         "interval",
-        minutes=10,
+        minutes=15,
         id="periodic_vote_update",
         name="Periodic update of current votes to clients",
         replace_existing=True,

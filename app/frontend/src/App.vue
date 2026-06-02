@@ -125,6 +125,9 @@
             </div>
           </div>
         </div>
+        <div class="fixed-bottom">
+            <p class="text-muted">Version {{ version }}</p>
+        </div>
       </div>
     </main>
 
@@ -152,6 +155,7 @@ export default {
       no: 0,
       maybe: 0,
     });
+    const version = ref(process.env.version || "0")
 
     const expected = computed(() => {
       var straight_count =
@@ -307,6 +311,7 @@ export default {
       expected,
       summary,
       voteButtons,
+      version,
     };
   },
 };

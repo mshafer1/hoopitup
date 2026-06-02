@@ -33,7 +33,7 @@ SCHEDULE_MESSAGE = config("SCHEDULE_MESSAGE", default="Game today @ 4:30?")
 Message to send on the schedule.
 """
 
-SCHEDULE_TIMEZONE = config("SCHEDULE_TIMEZONE", default="UTC")
+SCHEDULE_TIMEZONE = config("TZ", default="UTC")
 """
 Timezone for cron schedule.
 """
