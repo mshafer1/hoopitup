@@ -98,4 +98,4 @@ Ready to get Hoop It Up running for your local league or pickup crew? Proceed to
 
   App will be live at http://localhost:4080 (the 40 part can be changed by setting `port_prefix` in the .env file)
 
-:warning: The reader is left to determine a reverse proxy to use.
+⚠️ Warning ⚠️: The reader is left to determine a reverse proxy to use.
