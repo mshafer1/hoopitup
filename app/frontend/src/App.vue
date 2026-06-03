@@ -275,7 +275,7 @@ export default {
         notifyUser(title, {
           body: message,
           tag: "daily-summary",
-          requireInteraction: false,
+          requireInteraction: true,
         });
       });
 
