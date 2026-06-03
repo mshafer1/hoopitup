@@ -1,3 +1,5 @@
+[[_TOC_]]
+
 # 🏀 Hoop It Up Documentation: Overview
 
 Welcome to the **Hoop It Up** documentation hub.
