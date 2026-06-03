@@ -236,19 +236,22 @@ def get_votes():
 
 # Schedule the message sending job
 try:
-    scheduler.add_job(
-        send_scheduled_message,
-        "cron",
-        **parse_cron_expression(config.SCHEDULE_CRON),
-        id="scheduled_message",
-        name="Send scheduled game message",
-        replace_existing=True,
-        timezone=config.SCHEDULE_TIMEZONE,
-    )
-    MODULE_LOGGER.info(
-        "Scheduled message job configured: %s - '%s'", config.SCHEDULE_CRON, config.SCHEDULE_MESSAGE
-    )
-    if config.SCHEDULE_SUMMARY_TIME is not None:
+    if config.SCHEDULE_CRON and config.SCHEDULE_MESSAGE:
+        scheduler.add_job(
+            send_scheduled_message,
+            "cron",
+            **parse_cron_expression(config.SCHEDULE_CRON),
+            id="scheduled_message",
+            name="Send scheduled game message",
+            replace_existing=True,
+            timezone=config.SCHEDULE_TIMEZONE,
+        )
+        MODULE_LOGGER.info(
+            "Scheduled message job configured: %s - '%s'",
+            config.SCHEDULE_CRON,
+            config.SCHEDULE_MESSAGE,
+        )
+    if config.SCHEDULE_SUMMARY_TIME:
         scheduler.add_job(
             send_summary_message,
             "cron",
@@ -260,7 +263,9 @@ try:
             replace_existing=True,
             timezone=config.SCHEDULE_TIMEZONE,
         )
-        MODULE_LOGGER.info("Scheduled summary message job configured: %s", config.SCHEDULE_SUMMARY_TIME)
+        MODULE_LOGGER.info(
+            "Scheduled summary message job configured: %s", config.SCHEDULE_SUMMARY_TIME
+        )
     scheduler.add_job(
         reset_votes,
         "cron",
