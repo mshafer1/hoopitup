@@ -76,7 +76,7 @@ When exploring the codebase, here is where everything lives:
 
 ---
 
-## Navigating the Docs
+## Deploying
 
 Ready to get Hoop It Up running for your local league or pickup crew? Proceed to the next steps:
 
