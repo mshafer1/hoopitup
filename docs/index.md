@@ -16,6 +16,8 @@ Unlike generic polling tools, Hoop It Up is purpose-built for sports coordinatio
 * **No-App-Store PWA:** Users can install the application directly from their mobile or desktop browser, gaining access to native-like push notifications without navigating app stores.
 * **Fully Self-Hosted & Dockerized:** Complete ownership of your data and scheduling intervals with a lightweight footprint.
 
+![app image](image.png)
+
 ---
 
 ## 🛠️ The Tech Stack
