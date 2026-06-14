@@ -17,7 +17,7 @@ Hoop It Up is a progressive web app (PWA) for coordinating pickup basketball gam
   - If enough for a game: "looks like game on for XvX" (X = half the weighted total, see below).
 - **Weighted Totals**: Summary logic uses strict yes votes, half the maybes, and conditional yeses (if thresholds met) to compute readiness.
 - **Browser Notifications**: Users are prompted to enable notifications for vote updates and scheduled messages.
-- **Dockerized Deployment**: Multi-stage Dockerfile builds frontend and backend, runs with uWSGI and nginx. Docker Compose included.
+- **Dockerized Deployment**: Multi-stage Dockerfile builds frontend and backend, runs with Python Gevent web server. Docker Compose included.
 - **Poetry for Backend**: Python dependencies managed with Poetry for reproducible builds.
 - **Configurable via .env**: All secrets and schedule settings are loaded from environment variables using python-decouple.
 
@@ -118,7 +118,7 @@ Key variables:
 
 - `app/frontend/` — Vue 3 frontend (Vite, PWA)
 - `app/backend/` — Flask backend (SocketIO, APScheduler)
-- `hosting/` — Dockerfile, nginx, uWSGI, compose config
+- `hosting/` — Dockerfile, and Compose config
 
 ---
 
