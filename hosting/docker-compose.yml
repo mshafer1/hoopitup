@@ -3,7 +3,7 @@ services:
     build:
       context: ..
       dockerfile: hosting/Dockerfile
-    container_name: hoopitup-app
+    container_name: hoopitup-app-${INSTANCE:-prod}
     env_file:
       - .env
     ports:
