@@ -1,9 +1,10 @@
+name: hoopitup-app-${INSTANCE:-prod}
+
 services:
   web:
     build:
       context: ..
       dockerfile: hosting/Dockerfile
-    container_name: hoopitup-app-${INSTANCE:-prod}
     env_file:
       - .env
     ports:
