@@ -10,11 +10,15 @@ function computeExpectedValue(votes) {
 
   let straight_count = yes + Math.floor(0.5 * maybe);
 
-  if (straight_count + yes_if_3 >= 6) {
-    straight_count += yes_if_3;
-  }
+  var fives_counted = false;
   if (straight_count + yes_if_5 >= 10) {
     straight_count += yes_if_5;
+    fives_counted = true;
+  }
+  if (straight_count + yes_if_3 >= 6) {
+    straight_count += yes_if_3;
+  } else if (straight_count + yes_if_3 + yes_if_5 >= 10 && !fives_counted) {
+    straight_count += yes_if_3 + yes_if_5;
   }
 
   if (straight_count >= 10) {
