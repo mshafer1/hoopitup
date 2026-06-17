@@ -8,21 +8,20 @@ function computeExpectedValue(votes) {
   const yes_if_5 = Number(votes.yes_if_5 || 0);
   const maybe = Number(votes.maybe || 0);
 
-  var straight_count = votes.value.yes + Math.floor(0.5 * votes.value.maybe);
-  var yes_if_3_count = votes.value.yes_if_3 + straight_count;
-  var yes_if_5_count = votes.value.yes_if_5 + straight_count;
+  let straight_count = yes + Math.floor(0.5 * maybe);
 
-  console.log("Calculating expected game status with counts:", {
-    straight_count,
-    yes_if_3_count,
-    yes_if_5_count,
-  });
+  if (straight_count + yes_if_3 >= 6) {
+    straight_count += yes_if_3;
+  }
+  if (straight_count + yes_if_5 >= 10) {
+    straight_count += yes_if_5;
+  }
 
-  if (yes_if_5_count >= 10) {
+  if (straight_count >= 10) {
     return "5v5";
-  } else if (yes_if_3_count >= 8) {
+  } else if (straight_count >= 8) {
     return "4v4";
-  } else if (yes_if_3_count >= 6) {
+  } else if (straight_count >= 6) {
     return "3v3";
   } else if (straight_count >= 4) {
     return "2v2";
