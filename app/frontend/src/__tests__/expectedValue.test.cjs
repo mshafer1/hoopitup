@@ -44,6 +44,8 @@ describe("computeExpectedValue (votes)", () => {
     expect(computeExpectedValue({ yes: 10 })).toBe("5v5");
     expect(computeExpectedValue({ yes: 5, yes_if_3: 5 })).toBe("5v5");
     expect(computeExpectedValue({ yes: 5, yes_if_5: 5 })).toBe("5v5");
+    expect(computeExpectedValue({ yes_if_3: 5, yes_if_5: 5 })).toBe("5v5");
+    expect(computeExpectedValue({ yes: 1, maybe: 2, yes_if_3: 3, yes_if_5: 5 })).toBe("5v5");
   });
 
   test("returns no game when yes_if_5_count < 10", () => {
