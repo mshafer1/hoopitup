@@ -1,8 +1,13 @@
+---
+layout: default
+title: Hoop It Up Documentation
+---
+
 {:toc}
 
 # 🏀 Hoop It Up Documentation: Overview
 
-[![Github Repo](https://img.shields.io/badge/Github-mshafer1%2Fhoopitup-blue)](https://github.com/mshafer1/hoopitup)
+[![Github Repo](https://img.shields.io/badge/Github-mshafer1%2Fhoopitup-blue?logo=github)](https://github.com/mshafer1/hoopitup)
 
 
 Welcome to the **Hoop It Up** documentation hub.
