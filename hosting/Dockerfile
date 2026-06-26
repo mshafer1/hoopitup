@@ -1,5 +1,5 @@
 # Multi-stage build: Build frontend
-FROM node:lts-alpine3.23@sha256:2bdb65ed1dab192432bc31c95f94155ca5ad7fc1392fb7eb7526ab682fa5bf14 AS frontend-builder
+FROM node:lts-alpine3.23@sha256:595398b0081eacda8e1c4c5b97b76cd1020e4d58a8ebcb4843b9bca1e79e7436 AS frontend-builder
 WORKDIR /app/frontend
 COPY app/frontend/package*.json ./
 RUN npm install
