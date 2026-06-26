@@ -1,6 +1,9 @@
-[[_TOC_]]
+{:toc}
 
 # 🏀 Hoop It Up Documentation: Overview
+
+![Github Repo](https://img.shields.io/badge/Github-mshafer1%2Fhoopitup-blue)
+
 
 Welcome to the **Hoop It Up** documentation hub.
 
