@@ -1,8 +1,3 @@
----
-layout: default
-title: Hoop It Up Documentation
----
-
 {:toc}
 
 # 🏀 Hoop It Up Documentation: Overview
@@ -57,20 +52,20 @@ The core engine of Hoop It Up revolves around an automated **Game Readiness Life
 Users aren't limited to a binary "Yes" or "No". They can vote:
 
 * `Yes` / `No` / `Maybe`
-* `Yes (if enough for 3's)` — Threshold triggers at \(\ge 6\) total players.
-* `Yes (if enough for 5's)` — Threshold triggers at \(\ge 10\) total players.
+* `Yes (if enough for 3's)` — Threshold triggers at $\ge 6$ total players.
+* `Yes (if enough for 5's)` — Threshold triggers at $\ge 10$ total players.
 
 ### 2. The Weighted Total Formula
 
 The backend evaluates daily readiness using a strict formula at a designated summary time:
 
-\[\text{Weighted Total} = \text{Strict Yes} + \lfloor\frac{\text{Maybe}}{2}\rfloor + \text{Conditional 3s (if threshold met)} + \text{Conditional 5s (if threshold met)}\]
+$$\text{Weighted Total} = \text{Strict Yes} + \lfloor\frac{\text{Maybe}}{2}\rfloor + \text{Conditional 3s (if threshold met)} + \text{Conditional 5s (if threshold met)}$$
 
 ### 3. Automated Summaries
 
 Based on the formula result, the app automates communication:
 
-* **Game On:** If the total hits a threshold, a broadcast fires: *"Looks like game on for XvX"* (where \(X = \lfloor\text{Weighted Total} / 2\rfloor\)).
+* **Game On:** If the total hits a threshold, a broadcast fires: *"Looks like game on for XvX"* (where $X = \lfloor\text{Weighted Total} / 2\rfloor$).
 * **Missed Threshold:** If there is interest but numbers fall short: *"Looks like no game today"*.
 * **Inactivity:** If no "Yes" votes are logged, the app remains silent.
 
