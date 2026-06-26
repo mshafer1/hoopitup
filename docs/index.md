@@ -1,3 +1,8 @@
+---
+layout: default
+title: Hoop It Up Documentation
+---
+
 {:toc}
 
 # 🏀 Hoop It Up Documentation: Overview
