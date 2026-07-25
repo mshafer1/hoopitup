@@ -7,14 +7,14 @@ COPY app/frontend/ ./
 RUN npm run build
 
 # Poetry compile stage: Export dependencies
-FROM python:3.11-slim AS poetry-export
+FROM python:3.14-slim AS poetry-export
 WORKDIR /app
 RUN pip install --no-cache-dir poetry==2.4.1 poetry-plugin-export
 COPY app/backend/pyproject.toml app/backend/poetry.lock ./
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 # Final stage: Python and app
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 # Set working directory
 WORKDIR /app
